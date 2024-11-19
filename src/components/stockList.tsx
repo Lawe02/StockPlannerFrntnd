@@ -1,32 +1,25 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-
-interface StockResponseDto {
-  symbol: string;
-  name: string;
-}
-
-// Fetcher function
-const fetchStocks = async (name: string): Promise<StockResponseDto[]> => {
-  const response = await axios.get<StockResponseDto[]>("/search", {
-    params: { name, page: 1 }, // Page is hardcoded to 1 for simplicity
-  });
-  return response.data;
-};
+import { fetchStocks } from "../Api/apis"; // Import fetchStocks
 
 const StockList: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Search query
+  const [page, setPage] = useState<number>(1); // Pagination state
 
   const {
     data: stocks = [],
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["stocks", searchQuery],
-    queryFn: () => fetchStocks(searchQuery),
+    queryKey: ["stocks", searchQuery, page],
+    queryFn: () => fetchStocks(searchQuery, page),
     enabled: !!searchQuery, // Only fetch if there's a search query
   });
+
+  const inputOnChange = (input: HTMLInputElement) => {
+    setSearchQuery(input.value);
+    setPage(1);
+  };
 
   return (
     <div>
@@ -37,7 +30,7 @@ const StockList: React.FC = () => {
         type="text"
         placeholder="Search stocks..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => inputOnChange(e.target)}
         style={{
           padding: "8px",
           margin: "10px 0",
@@ -46,6 +39,47 @@ const StockList: React.FC = () => {
           border: "1px solid #ccc",
         }}
       />
+
+      {/* Pagination Controls */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "10px",
+        }}
+      >
+        <button
+          style={{
+            padding: "8px 12px",
+            marginRight: "10px",
+            backgroundColor: page > 1 ? "#007bff" : "#d6d6d6",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: page > 1 ? "pointer" : "not-allowed",
+          }}
+          disabled={page <= 1}
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+        >
+          &#8592; Previous
+        </button>
+        <span>Page {page}</span>
+        <button
+          style={{
+            padding: "8px 12px",
+            marginLeft: "10px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next &#8594;
+        </button>
+      </div>
 
       {/* Stock Table */}
       {isLoading ? (
