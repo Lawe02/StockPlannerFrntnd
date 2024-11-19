@@ -4,6 +4,20 @@ export interface StockResponseDto {
   name: string;
 }
 
+export interface PlanStockRequestDto {
+  stockSymbol: string;
+  priceWhenAdded: number;
+  moneyInvested: number;
+  monthlyPercentageProgress: number;
+}
+
+export interface CreatePlanRequestDto {
+  name: string;
+  description: string;
+  userName: string;
+  stockPlans: PlanStockRequestDto[];
+}
+
 export const fetchStocks = async (
   query: string,
   page: number
@@ -22,4 +36,26 @@ export const fetchStocks = async (
   }
 
   return response.json();
+};
+
+export const createPlan = async (
+  createPlanRequest: CreatePlanRequestDto
+): Promise<string> => {
+  const url = "http://localhost:8080/api/plans";
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(createPlanRequest),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create plan: ${response.statusText}`);
+  }
+
+  return response.text(); // Return the response text ("createdPlan")
 };
