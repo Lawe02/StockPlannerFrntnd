@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
+import { debounce } from "../utils/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStocks } from "../Api/apis"; // Import fetchStocks
 
 const StockList: React.FC = () => {
+  const [inputValue, setInputValue] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>(""); // Search query
   const [page, setPage] = useState<number>(1); // Pagination state
 
@@ -16,9 +18,18 @@ const StockList: React.FC = () => {
     enabled: !!searchQuery, // Only fetch if there's a search query
   });
 
-  const inputOnChange = (input: HTMLInputElement) => {
-    setSearchQuery(input.value);
-    setPage(1);
+  const updateSearchQuery = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value);
+      setPage(1);
+    }, 500),
+    []
+  );
+
+  const inputOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputValue(value);
+    updateSearchQuery(value);
   };
 
   return (
@@ -29,8 +40,8 @@ const StockList: React.FC = () => {
       <input
         type="text"
         placeholder="Search stocks..."
-        value={searchQuery}
-        onChange={(e) => inputOnChange(e.target)}
+        value={inputValue}
+        onChange={inputOnChange}
         style={{
           padding: "8px",
           margin: "10px 0",
@@ -48,38 +59,7 @@ const StockList: React.FC = () => {
           alignItems: "center",
           marginTop: "10px",
         }}
-      >
-        <button
-          style={{
-            padding: "8px 12px",
-            marginRight: "10px",
-            backgroundColor: page > 1 ? "#007bff" : "#d6d6d6",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: page > 1 ? "pointer" : "not-allowed",
-          }}
-          disabled={page <= 1}
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-        >
-          &#8592; Previous
-        </button>
-        <span>Page {page}</span>
-        <button
-          style={{
-            padding: "8px 12px",
-            marginLeft: "10px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          Next &#8594;
-        </button>
-      </div>
+      ></div>
 
       {/* Stock Table */}
       {isLoading ? (
@@ -120,6 +100,36 @@ const StockList: React.FC = () => {
       ) : (
         <p>No results found.</p>
       )}
+      <button
+        style={{
+          padding: "8px 12px",
+          marginRight: "10px",
+          backgroundColor: page > 1 ? "#007bff" : "#d6d6d6",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: page > 1 ? "pointer" : "not-allowed",
+        }}
+        disabled={page <= 1}
+        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+      >
+        &#8592; Previous
+      </button>
+      <span>Page {page}</span>
+      <button
+        style={{
+          padding: "8px 12px",
+          marginLeft: "10px",
+          backgroundColor: "#007bff",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+        onClick={() => setPage((prev) => prev + 1)}
+      >
+        Next &#8594;
+      </button>
     </div>
   );
 };
