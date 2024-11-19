@@ -41,8 +41,8 @@ export const fetchStocks = async (
 export const createPlan = async (
   createPlanRequest: CreatePlanRequestDto
 ): Promise<string> => {
-  const url = "http://localhost:8080/api/plans";
-
+  const url = "http://localhost:8080/api/stocks";
+ 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -57,5 +57,5 @@ export const createPlan = async (
     throw new Error(`Failed to create plan: ${response.statusText}`);
   }
 
-  return response.text(); // Return the response text ("createdPlan")
+  return response.text();
 };

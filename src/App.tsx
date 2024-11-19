@@ -1,8 +1,12 @@
 import "./App.css";
-import StockList from "./components/stockList";
+import CreatePlan from "./components/createPlan";
 
 function App() {
-  return <StockList />;
+  return (
+    <>
+      <CreatePlan />
+    </>
+  );
 }
 
 export default App;

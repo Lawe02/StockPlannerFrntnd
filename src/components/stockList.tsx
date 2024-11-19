@@ -1,9 +1,13 @@
 import React, { useState, useCallback } from "react";
 import { debounce } from "../utils/utils";
 import { useQuery } from "@tanstack/react-query";
-import { fetchStocks } from "../Api/apis"; // Import fetchStocks
+import { fetchStocks, StockResponseDto } from "../Api/apis";
 
-const StockList: React.FC = () => {
+interface StockListProps {
+  onAddStock: (symbol: string) => void; // Callback to add a stock to the plan
+}
+
+const StockList: React.FC<StockListProps> = ({ onAddStock }) => {
   const [inputValue, setInputValue] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>(""); // Search query
   const [page, setPage] = useState<number>(1); // Pagination state
@@ -12,7 +16,7 @@ const StockList: React.FC = () => {
     data: stocks = [],
     isLoading,
     isError,
-  } = useQuery({
+  } = useQuery<StockResponseDto[]>({
     queryKey: ["stocks", searchQuery, page],
     queryFn: () => fetchStocks(searchQuery, page),
     enabled: !!searchQuery, // Only fetch if there's a search query
@@ -51,16 +55,6 @@ const StockList: React.FC = () => {
         }}
       />
 
-      {/* Pagination Controls */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "10px",
-        }}
-      ></div>
-
       {/* Stock Table */}
       {isLoading ? (
         <p>Loading...</p>
@@ -82,6 +76,9 @@ const StockList: React.FC = () => {
                 Symbol
               </th>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Name</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -93,6 +90,21 @@ const StockList: React.FC = () => {
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                   {stock.name}
                 </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  <button
+                    style={{
+                      padding: "6px 12px",
+                      backgroundColor: "#007bff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => onAddStock(stock.symbol)}
+                  >
+                    Add
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -100,36 +112,47 @@ const StockList: React.FC = () => {
       ) : (
         <p>No results found.</p>
       )}
-      <button
+
+      {/* Pagination Controls */}
+      <div
         style={{
-          padding: "8px 12px",
-          marginRight: "10px",
-          backgroundColor: page > 1 ? "#007bff" : "#d6d6d6",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: page > 1 ? "pointer" : "not-allowed",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "10px",
         }}
-        disabled={page <= 1}
-        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
       >
-        &#8592; Previous
-      </button>
-      <span>Page {page}</span>
-      <button
-        style={{
-          padding: "8px 12px",
-          marginLeft: "10px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-        onClick={() => setPage((prev) => prev + 1)}
-      >
-        Next &#8594;
-      </button>
+        <button
+          style={{
+            padding: "8px 12px",
+            marginRight: "10px",
+            backgroundColor: page > 1 ? "#007bff" : "#d6d6d6",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: page > 1 ? "pointer" : "not-allowed",
+          }}
+          disabled={page <= 1}
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+        >
+          &#8592; Previous
+        </button>
+        <span>Page {page}</span>
+        <button
+          style={{
+            padding: "8px 12px",
+            marginLeft: "10px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next &#8594;
+        </button>
+      </div>
     </div>
   );
 };
