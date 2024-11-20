@@ -1,9 +1,28 @@
-// Define the StockResponseDto interface
+// Response
 export interface StockResponseDto {
   symbol: string;
   name: string;
 }
 
+export interface StockPlanResponseDto {
+  stockSymbol: string;
+  stockName: string;
+  monthlyPercentageDevelopment: number;
+  priceWhenAdded: number;
+  moneyInvested: number;
+}
+
+export interface PlanResponseDto {
+  name: string;
+  description: string;
+  stocks: StockPlanResponseDto[];
+}
+
+export interface UserPlansResponseDto {
+  plans: PlanResponseDto[];
+}
+
+//Request
 export interface PlanStockRequestDto {
   stockSymbol: string;
   priceWhenAdded: number;
@@ -42,7 +61,7 @@ export const createPlan = async (
   createPlanRequest: CreatePlanRequestDto
 ): Promise<string> => {
   const url = "http://localhost:8080/api/stocks";
- 
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -58,4 +77,26 @@ export const createPlan = async (
   }
 
   return response.text();
+};
+
+export const fetchPlansForUser = async (
+  userName: string
+): Promise<UserPlansResponseDto> => {
+  const url = `http://localhost:8080/api/stocks/plans?userName=${encodeURIComponent(
+    userName
+  )}`;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch plans for user ${userName}: ${response.statusText}`
+    );
+  }
+
+  return response.json();
 };
