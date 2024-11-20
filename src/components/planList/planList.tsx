@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   fetchPlansForUser,
   UserPlansResponseDto,
@@ -13,13 +13,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import PlanDetails from "../plandetails/plandetails"; // Assume PlanDetails is the view component
 
 const PlansList: React.FC = () => {
   const [plans, setPlans] = useState<PlanResponseDto[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<PlanResponseDto | null>(
+    null
+  ); // State to hold the selected plan
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const loadPlans = async () => {
       try {
         const response: UserPlansResponseDto = await fetchPlansForUser(
@@ -34,14 +38,14 @@ const PlansList: React.FC = () => {
     };
 
     loadPlans();
-  }, ["johndoe"]);
+  }, []);
 
-  const handleDelete = (planName: string) => {
-    console.log(`Deleting plan: ${planName}`);
+  const handleView = (plan: PlanResponseDto) => {
+    setSelectedPlan(plan); // Set the selected plan for viewing
   };
 
-  const handleView = (planName: string) => {
-    console.log(`Viewing plan: ${planName}`);
+  const handleBack = () => {
+    setSelectedPlan(null); // Return to the plans list
   };
 
   if (loading) {
@@ -52,9 +56,14 @@ const PlansList: React.FC = () => {
     return <p className="text-center text-red-500">Error: {error}</p>;
   }
 
-  if (plans.length === 0) {
+  if (selectedPlan) {
     return (
-      <p className="text-center text-lg">No plans found for {"johndoe"}.</p>
+      <div>
+        <Button onClick={handleBack} variant="outline" className="mb-4">
+          Back to Plans
+        </Button>
+        <PlanDetails plan={selectedPlan} /> {/* Render the selected plan */}
+      </div>
     );
   }
 
@@ -94,17 +103,9 @@ const PlansList: React.FC = () => {
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="mr-2"
-                    onClick={() => handleView(plan.name)}
+                    onClick={() => handleView(plan)}
                   >
                     View
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(plan.name)}
-                  >
-                    Delete
                   </Button>
                 </TableCell>
               </TableRow>
