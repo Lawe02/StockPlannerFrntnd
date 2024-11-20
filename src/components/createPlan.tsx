@@ -4,7 +4,27 @@ import {
   CreatePlanRequestDto,
   PlanStockRequestDto,
 } from "../Api/apis";
-import StockList from "./stockList"; // Import StockList component
+import StockList from "./stockList";
+
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
 
 const PlanCreationForm: React.FC = () => {
   const [planName, setPlanName] = useState<string>("");
@@ -15,12 +35,11 @@ const PlanCreationForm: React.FC = () => {
 
   // Handle adding a stock to the stockPlans array
   const addStockToPlan = (stockSymbol: string) => {
-    // Ensure stock is not already in the plan
     if (stockPlans.some((stock) => stock.stockSymbol === stockSymbol)) return;
 
     const newStock: PlanStockRequestDto = {
       stockSymbol,
-      priceWhenAdded: 0, // Placeholder, can be fetched or updated later
+      priceWhenAdded: 0, // Placeholder
       moneyInvested: 0,
       monthlyPercentageProgress: 0,
     };
@@ -61,85 +80,124 @@ const PlanCreationForm: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Create a New Plan</h1>
-
-      {/* Plan Details */}
-      <div>
-        <label>
-          Plan Name:
-          <input
-            type="text"
-            value={planName}
-            onChange={(e) => setPlanName(e.target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Description:
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          User Name:
-          <input
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-          />
-        </label>
+    <div className="flex flex-col lg:flex-row gap-6">
+      {/* Stock List (Left Section) */}
+      <div className="flex-1">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">
+              Search and Add Stocks
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StockList onAddStock={addStockToPlan} />
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Display Added Stocks */}
-      <h3>Stocks in Plan</h3>
-      {stockPlans.length > 0 ? (
-        <ul>
-          {stockPlans.map((stock, index) => (
-            <li key={index}>
-              <span>
-                {stock.stockSymbol} - Money Invested:
-                <input
-                  type="number"
-                  value={stock.moneyInvested}
-                  onChange={(e) =>
-                    updateStockDetails(index, "moneyInvested", +e.target.value)
-                  }
+      {/* Plan Creation Form (Right Section) */}
+      <div className="flex-1">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">
+              Create a New Investment Plan
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Plan Details */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="planName">Plan Name</Label>
+                <Input
+                  id="planName"
+                  placeholder="Enter plan name"
+                  value={planName}
+                  onChange={(e) => setPlanName(e.target.value)}
                 />
-                , Progress:
-                <input
-                  type="number"
-                  value={stock.monthlyPercentageProgress}
-                  onChange={(e) =>
-                    updateStockDetails(
-                      index,
-                      "monthlyPercentageProgress",
-                      +e.target.value
-                    )
-                  }
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe your plan"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
-                %
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No stocks added yet.</p>
-      )}
+              </div>
 
-      {/* Submit Plan */}
-      <button onClick={handleSubmit}>Create Plan</button>
+              <div>
+                <Label htmlFor="userName">User Name</Label>
+                <Input
+                  id="userName"
+                  placeholder="Enter your username"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+              </div>
+            </div>
 
-      {/* Stock List Component */}
-      <h2>Search and Add Stocks</h2>
-      <StockList onAddStock={addStockToPlan} />
+            {/* Display Added Stocks */}
+            <h3 className="mt-6 text-lg font-medium">Stocks in Plan</h3>
+            {stockPlans.length > 0 ? (
+              <Table className="mt-4">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Stock Symbol</TableHead>
+                    <TableHead>Money Invested</TableHead>
+                    <TableHead>Progress (%)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stockPlans.map((stock, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{stock.stockSymbol}</TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          value={stock.moneyInvested}
+                          onChange={(e) =>
+                            updateStockDetails(
+                              index,
+                              "moneyInvested",
+                              +e.target.value
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          value={stock.monthlyPercentageProgress}
+                          onChange={(e) =>
+                            updateStockDetails(
+                              index,
+                              "monthlyPercentageProgress",
+                              +e.target.value
+                            )
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-muted-foreground mt-4">No stocks added yet.</p>
+            )}
+          </CardContent>
 
-      {/* Display API Response */}
-      {message && <p>{message}</p>}
+          <CardFooter className="flex justify-between items-center">
+            {/* Display API Response */}
+            {message && (
+              <p className="text-sm text-muted-foreground">{message}</p>
+            )}
+
+            {/* Submit Plan */}
+            <Button onClick={handleSubmit}>Create Plan</Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 };
