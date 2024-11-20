@@ -13,6 +13,7 @@ export interface StockPlanResponseDto {
 }
 
 export interface PlanResponseDto {
+  stockPlans: StockPlanResponseDto[];
   name: string;
   description: string;
   stocks: StockPlanResponseDto[];
