@@ -14,6 +14,7 @@ export interface StockPlanResponseDto {
 
 export interface PlanResponseDto {
   stockPlans: StockPlanResponseDto[];
+  id: string;
   name: string;
   description: string;
   stocks: StockPlanResponseDto[];
@@ -100,4 +101,14 @@ export const fetchPlansForUser = async (
   }
 
   return response.json();
+};
+
+export const fetchPlanDetails = async (id: string, userName: string) => {
+  const response = await fetch(
+    `http://localhost:8080/api/stocks/plans/${id}?userName=${userName}`
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch plan details");
+  }
+  return await response.json();
 };

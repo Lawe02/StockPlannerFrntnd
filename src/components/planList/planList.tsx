@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+// PlansList.tsx
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import {
   fetchPlansForUser,
   UserPlansResponseDto,
@@ -18,6 +20,7 @@ const PlansList: React.FC = () => {
   const [plans, setPlans] = useState<PlanResponseDto[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate(); // Initialize the navigate function
 
   useEffect(() => {
     const loadPlans = async () => {
@@ -34,14 +37,10 @@ const PlansList: React.FC = () => {
     };
 
     loadPlans();
-  }, ["johndoe"]);
+  }, []);
 
-  const handleDelete = (planName: string) => {
-    console.log(`Deleting plan: ${planName}`);
-  };
-
-  const handleView = (planName: string) => {
-    console.log(`Viewing plan: ${planName}`);
+  const handleView = (planId: string) => {
+    navigate(`/plan/${planId}`); // Navigate to the PlanDetails page with the plan's ID
   };
 
   if (loading) {
@@ -50,12 +49,6 @@ const PlansList: React.FC = () => {
 
   if (error) {
     return <p className="text-center text-red-500">Error: {error}</p>;
-  }
-
-  if (plans.length === 0) {
-    return (
-      <p className="text-center text-lg">No plans found for {"johndoe"}.</p>
-    );
   }
 
   return (
@@ -94,17 +87,9 @@ const PlansList: React.FC = () => {
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="mr-2"
-                    onClick={() => handleView(plan.name)}
+                    onClick={() => handleView(plan.id)}
                   >
                     View
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(plan.name)}
-                  >
-                    Delete
                   </Button>
                 </TableCell>
               </TableRow>
