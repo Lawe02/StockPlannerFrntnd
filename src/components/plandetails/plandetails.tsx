@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPlanDetails, PlanResponseDto } from "../../Api/apis";
 import { Button } from "@/components/ui/button";
@@ -7,26 +9,26 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
+  CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+import { AreaChart, CartesianGrid, XAxis, Area } from "recharts";
+import { TrendingUp } from "lucide-react";
 
 const PlanDetails: React.FC = () => {
   const { id } = useParams();
@@ -34,16 +36,14 @@ const PlanDetails: React.FC = () => {
   const [plan, setPlan] = useState<PlanResponseDto | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [months, setMonths] = useState<number>(12); // Default to 12 months
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [months, setMonths] = useState<number>(6);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const loadPlanDetails = async () => {
       try {
         if (id) {
           const response = await fetchPlanDetails(id, "johndoe");
           setPlan(response);
-          console.log(response);
         }
       } catch (err) {
         setError((err as Error).message);
@@ -54,52 +54,43 @@ const PlanDetails: React.FC = () => {
     loadPlanDetails();
   }, [id]);
 
-  useEffect(() => {
-    if (plan) {
-      // Calculate chart data when months or plan changes
-      const data = calculateChartData(plan, months);
-      setChartData(data);
-    }
-  }, [plan, months]);
-
-  const calculateChartData = (plan: PlanResponseDto, months: number) => {
-    // Generate chart data for each stock
-    const data = [];
-    for (let month = 1; month <= months; month++) {
-      const totalValue = plan.stockPlans.reduce((sum, stock) => {
-        const growthFactor = 1 + stock.monthlyPercentageDevelopment / 100;
-        const value = stock.moneyInvested * Math.pow(growthFactor, month);
-        return sum + value;
-      }, 0);
-      data.push({ month, value: totalValue.toFixed(2) });
-    }
-    return data;
-  };
-
   if (loading) {
-    return (
-      <div className="p-8">
-        <Skeleton className="h-12 w-1/2 mb-4" />
-        <Skeleton className="h-10 w-1/4 mb-4" />
-        <Skeleton className="h-8 w-full mb-4" />
-        <Skeleton className="h-8 w-2/3 mb-4" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
+    return <p>Loading...</p>;
   }
 
   if (error) {
-    return <p className="text-center text-red-500">Error: {error}</p>;
+    return <p>Error: {error}</p>;
   }
 
   if (!plan) {
-    return <p className="text-center">Plan not found.</p>;
+    return <p>Plan not found.</p>;
   }
 
+  // Calculate chart data and overall stats
+  const chartData = Array.from({ length: months }, (_, index) => ({
+    month: `Month ${index + 1}`,
+    investment:
+      plan.stockPlans[0].moneyInvested *
+      (1 + plan.stockPlans[0].monthlyPercentageDevelopment / 100) ** index,
+  }));
+
   const totalInvestment = plan.stockPlans.reduce(
-    (sum, stock) => sum + stock.moneyInvested,
+    (acc, stock) => acc + stock.moneyInvested,
     0
   );
+
+  const totalRevenuePercentage =
+    plan.stockPlans.reduce(
+      (acc, stock) => acc + stock.monthlyPercentageDevelopment,
+      0
+    ) / plan.stockPlans.length;
+
+  const chartConfig: ChartConfig = {
+    investment: {
+      label: "Investment Value",
+      color: "#1F2937", // Dark gray color
+    },
+  };
 
   return (
     <div className="container mx-auto p-8">
@@ -109,95 +100,98 @@ const PlanDetails: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <h1 className="text-3xl font-semibold text-gray-800">{plan.name}</h1>
-          <p className="text-muted-foreground">{plan.description}</p>
+          <CardTitle>{plan.name}</CardTitle>
+          <CardDescription>{plan.description}</CardDescription>
         </CardHeader>
 
+        {/* Stock Details */}
         <CardContent>
-          <Table className="mb-4">
+          <h3 className="text-lg font-semibold mb-4">Stocks</h3>
+          <Table>
+            <TableCaption>A list of stocks in this plan.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>Stock Name</TableHead>
-                <TableHead>Stock Symbol</TableHead>
-                <TableHead>Monthly % Dev</TableHead>
-                <TableHead>Price When Added</TableHead>
-                <TableHead>Money Invested</TableHead>
+                <TableHead>Investment ($)</TableHead>
+                <TableHead>Monthly Growth (%)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {plan.stockPlans.map((stock, index) => (
                 <TableRow key={index}>
-                  <TableCell>{stock.name}</TableCell>
-                  <TableCell>{stock.symbol}</TableCell>
-                  <TableCell className="text-right">
-                    {stock.monthlyPercentageDevelopment}%
+                  <TableCell className="font-medium">
+                    {stock.stockName}
                   </TableCell>
-                  <TableCell className="text-right">
-                    ${stock.priceWhenAdded.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    ${stock.moneyInvested.toFixed(2)}
+                  <TableCell>{stock.moneyInvested.toFixed(2)}</TableCell>
+                  <TableCell>
+                    {stock.monthlyPercentageDevelopment.toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+        </CardContent>
 
-          <div className="mt-6 flex items-center justify-between">
-            <p className="font-semibold text-lg">Total Money Invested:</p>
-            <p className="font-bold text-xl text-green-600">
-              ${totalInvestment.toFixed(2)}
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <div className="flex items-center mb-4">
-              <label htmlFor="months" className="mr-4 font-medium">
-                Enter Number of Months:
-              </label>
-              <Input
-                id="months"
-                type="number"
-                value={months}
-                onChange={(e) => setMonths(Number(e.target.value))}
-                className="w-20"
-              />
+        <CardContent>
+          <div className="relative">
+            {/* Overlay for total investment and revenue */}
+            <div className="absolute top-4 left-4 bg-gray-800 text-white rounded-md p-4 shadow-md">
+              <div className="text-lg font-bold">
+                ${totalInvestment.toFixed(2)}
+              </div>
+              <div className="text-sm text-green-400">
+                {totalRevenuePercentage.toFixed(2)}% Revenue Growth
+              </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
+            {/* Chart */}
+            <ChartContainer config={chartConfig}>
+              <AreaChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                }}
+              >
+                <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="month"
-                  label={{ value: "Months", position: "insideBottom" }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
                 />
-                <YAxis
-                  label={{
-                    value: "Value ($)",
-                    angle: -90,
-                    position: "insideLeft",
-                  }}
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="line" />}
                 />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#8884d8"
-                  activeDot={{ r: 8 }}
+                <Area
+                  dataKey="investment"
+                  type="natural"
+                  fill="#1F2937" // Dark gray for fill
+                  fillOpacity={0.4} // Slight transparency for the area
+                  stroke="#1F2937" // Dark gray for stroke
                 />
-              </LineChart>
-            </ResponsiveContainer>
+              </AreaChart>
+            </ChartContainer>
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-between items-center">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/")}
-            className="w-full sm:w-auto"
-          >
-            Back to Plans
-          </Button>
+        {/* Footer */}
+        <CardFooter className="flex-col items-start gap-2 text-sm">
+          <div className="flex gap-2 font-medium leading-none">
+            Projected growth over {months} months{" "}
+            <TrendingUp className="h-4 w-4" />
+          </div>
+          <input
+            type="number"
+            min="1"
+            max="60"
+            value={months}
+            onChange={(e) => setMonths(Number(e.target.value))}
+            className="border p-2 mt-4"
+            placeholder="Enter months"
+          />
         </CardFooter>
       </Card>
     </div>
