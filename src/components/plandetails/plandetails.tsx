@@ -74,16 +74,12 @@ const PlanDetails: React.FC = () => {
       (1 + plan.stockPlans[0].monthlyPercentageDevelopment / 100) ** index,
   }));
 
-  const totalInvestment = plan.stockPlans.reduce(
-    (acc, stock) => acc + stock.moneyInvested,
-    0
-  );
-
-  const totalRevenuePercentage =
-    plan.stockPlans.reduce(
-      (acc, stock) => acc + stock.monthlyPercentageDevelopment,
-      0
-    ) / plan.stockPlans.length;
+  const previousInvestment = plan.stockPlans[0].moneyInvested;
+  const totalGrowthPercentage = previousInvestment
+    ? (((chartData[months - 1]?.investment || 0) - previousInvestment) /
+        previousInvestment) *
+      100
+    : 0;
 
   const chartConfig: ChartConfig = {
     investment: {
@@ -99,12 +95,14 @@ const PlanDetails: React.FC = () => {
       </Button>
 
       <Card>
+        {/* Header */}
         <CardHeader>
           <CardTitle>{plan.name}</CardTitle>
           <CardDescription>{plan.description}</CardDescription>
         </CardHeader>
 
         {/* Stock Details */}
+
         <CardContent>
           <h3 className="text-lg font-semibold mb-4">Stocks</h3>
           <Table>
@@ -132,17 +130,24 @@ const PlanDetails: React.FC = () => {
           </Table>
         </CardContent>
 
+        {/* Chart Section */}
         <CardContent>
           <div className="relative">
-            {/* Overlay for total investment and revenue */}
-            <div className="absolute top-4 left-4 bg-gray-800 text-white rounded-md p-4 shadow-md">
-              <div className="text-lg font-bold">
-                ${totalInvestment.toFixed(2)}
-              </div>
-              <div className="text-sm text-green-400">
-                {totalRevenuePercentage.toFixed(2)}% Revenue Growth
-              </div>
-            </div>
+            {/* Growth and Total Worth Overlay */}
+            <CardHeader className="absolute top-4 left-4 bg-white/80 p-3 rounded-lg shadow-md">
+              <CardTitle className="text-xl font-bold text-gray-800">
+                Total Growth:{" "}
+                <span className="text-green-600">
+                  {totalGrowthPercentage.toFixed(2)}%
+                </span>
+              </CardTitle>
+              <CardDescription className="text-lg font-medium text-gray-600">
+                Total Worth:{" "}
+                <span className="text-gray-800">
+                  ${chartData[months - 1]?.investment.toFixed(2) || "0.00"}
+                </span>
+              </CardDescription>
+            </CardHeader>
 
             {/* Chart */}
             <ChartContainer config={chartConfig}>
@@ -152,6 +157,7 @@ const PlanDetails: React.FC = () => {
                 margin={{
                   left: 12,
                   right: 12,
+                  top: 50, // Added top margin to accommodate the overlay
                 }}
               >
                 <CartesianGrid vertical={false} />
@@ -180,8 +186,9 @@ const PlanDetails: React.FC = () => {
         {/* Footer */}
         <CardFooter className="flex-col items-start gap-2 text-sm">
           <div className="flex gap-2 font-medium leading-none">
-            Projected growth over {months} months{" "}
-            <TrendingUp className="h-4 w-4" />
+            Projected growth over{" "}
+            <span className="text-gray-800">{months}</span> months{" "}
+            <TrendingUp className="h-4 w-4 text-green-500" />
           </div>
           <input
             type="number"
@@ -189,7 +196,7 @@ const PlanDetails: React.FC = () => {
             max="60"
             value={months}
             onChange={(e) => setMonths(Number(e.target.value))}
-            className="border p-2 mt-4"
+            className="border border-gray-300 rounded-lg p-2 mt-4 w-full"
             placeholder="Enter months"
           />
         </CardFooter>
