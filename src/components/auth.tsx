@@ -19,7 +19,7 @@ const AuthButton = () => {
       className="btn btn-primary ml-auto"
       onClick={() => loginWithRedirect()}
     >
-      Log In
+      Get Started
     </button>
   );
 };
