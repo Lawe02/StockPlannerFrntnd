@@ -27,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AreaChart, CartesianGrid, XAxis, Area } from "recharts";
+import { AreaChart, CartesianGrid, XAxis, Area, YAxis } from "recharts";
 import { TrendingUp } from "lucide-react";
 
 const PlanDetails: React.FC = () => {
@@ -52,6 +52,7 @@ const PlanDetails: React.FC = () => {
       }
     };
     loadPlanDetails();
+    console.log(plan);
   }, [id]);
 
   if (loading) {
@@ -89,22 +90,23 @@ const PlanDetails: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <Button onClick={() => navigate("/")} variant="outline" className="mb-6">
+    <div className="container mx-auto p-6 max-w-4xl">
+      <Button onClick={() => navigate("/")} variant="outline" className="mb-4">
         Back to Plans
       </Button>
 
       <Card>
         {/* Header */}
-        <CardHeader>
-          <CardTitle>{plan.name}</CardTitle>
-          <CardDescription>{plan.description}</CardDescription>
+        <CardHeader className="p-4">
+          <CardTitle className="text-xl">{plan.name}</CardTitle>
+          <CardDescription className="text-sm text-gray-600">
+            {plan.description}
+          </CardDescription>
         </CardHeader>
 
         {/* Stock Details */}
-
-        <CardContent>
-          <h3 className="text-lg font-semibold mb-4">Stocks</h3>
+        <CardContent className="p-4">
+          <h3 className="text-lg font-semibold mb-2">Stocks</h3>
           <Table>
             <TableCaption>A list of stocks in this plan.</TableCaption>
             <TableHeader>
@@ -117,9 +119,7 @@ const PlanDetails: React.FC = () => {
             <TableBody>
               {plan.stockPlans.map((stock, index) => (
                 <TableRow key={index}>
-                  <TableCell className="font-medium">
-                    {stock.stockName}
-                  </TableCell>
+                  <TableCell className="font-medium">{stock.name}</TableCell>
                   <TableCell>{stock.moneyInvested.toFixed(2)}</TableCell>
                   <TableCell>
                     {stock.monthlyPercentageDevelopment.toFixed(2)}
@@ -131,74 +131,125 @@ const PlanDetails: React.FC = () => {
         </CardContent>
 
         {/* Chart Section */}
-        <CardContent>
-          <div className="relative">
-            {/* Growth and Total Worth Overlay */}
-            <CardHeader className="absolute top-4 left-4 bg-white/80 p-3 rounded-lg shadow-md">
-              <CardTitle className="text-xl font-bold text-gray-800">
-                Total Growth:{" "}
-                <span className="text-green-600">
-                  {totalGrowthPercentage.toFixed(2)}%
-                </span>
-              </CardTitle>
-              <CardDescription className="text-lg font-medium text-gray-600">
-                Total Worth:{" "}
-                <span className="text-gray-800">
-                  ${chartData[months - 1]?.investment.toFixed(2) || "0.00"}
-                </span>
-              </CardDescription>
-            </CardHeader>
+        <Card>
+          <CardHeader>
+            <CardTitle>Projected Investment Growth</CardTitle>
+            <CardDescription>
+              Adjust the duration and view growth projections
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6">
+            {/* Input and Projection Section */}
+            <div className="flex items-center gap-6">
+              {/* Input Section */}
+              <div className="flex flex-col w-1/4">
+                <label
+                  htmlFor="monthsInput"
+                  className="text-sm font-medium mb-1"
+                >
+                  Months
+                </label>
+                <input
+                  id="monthsInput"
+                  type="number"
+                  min="1"
+                  max="60"
+                  value={months}
+                  onChange={(e) => setMonths(Number(e.target.value))}
+                  className="border border-gray-300 rounded-lg p-2 text-sm w-full"
+                  placeholder="1-60"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter months between 1 and 60.
+                </p>
+              </div>
 
-            {/* Chart */}
-            <ChartContainer config={chartConfig}>
-              <AreaChart
-                accessibilityLayer
-                data={chartData}
-                margin={{
-                  left: 12,
-                  right: 12,
-                  top: 50, // Added top margin to accommodate the overlay
-                }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
-                />
-                <Area
-                  dataKey="investment"
-                  type="natural"
-                  fill="#1F2937" // Dark gray for fill
-                  fillOpacity={0.4} // Slight transparency for the area
-                  stroke="#1F2937" // Dark gray for stroke
-                />
-              </AreaChart>
-            </ChartContainer>
-          </div>
-        </CardContent>
+              {/* Projected Worth and Growth */}
+              <div className="flex flex-1 items-center justify-end gap-6">
+                {/* Total Growth */}
+                <div className="flex flex-col items-end text-right">
+                  <p className="text-sm font-medium text-gray-600">
+                    Projected Growth
+                  </p>
+                  <p className="text-base font-semibold text-green-600">
+                    {totalGrowthPercentage.toFixed(2)}%
+                  </p>
+                </div>
+                {/* Total Worth */}
+                <div className="flex flex-col items-end text-right">
+                  <p className="text-sm font-medium text-gray-600">
+                    Total Worth
+                  </p>
+                  <p className="text-base font-semibold text-gray-800">
+                    ${chartData[months - 1]?.investment.toFixed(2) || "0.00"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Chart with Border */}
+            <div
+              className="border border-grey rounded-lg p-2"
+              style={{ backgroundColor: "#fff" }}
+            >
+              <ChartContainer config={chartConfig}>
+                <AreaChart
+                  accessibilityLayer
+                  data={chartData}
+                  margin={{
+                    left: 12,
+                    right: 12,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <YAxis
+                    dataKey="investment"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="line" />}
+                  />
+                  <Area
+                    dataKey="investment"
+                    type="natural"
+                    fill="#1F2937" // Dark gray fill
+                    fillOpacity={0.4}
+                    stroke="#1F2937" // Dark gray stroke
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <div className="flex w-full items-start gap-2 text-sm">
+              <div className="grid gap-2">
+                <div className="flex items-center gap-2 font-medium leading-none">
+                  Stay informed about your investment plan!
+                </div>
+                <div className="flex items-center gap-2 leading-none text-muted-foreground">
+                  Powered by accurate projections.
+                </div>
+              </div>
+            </div>
+          </CardFooter>
+        </Card>
 
         {/* Footer */}
-        <CardFooter className="flex-col items-start gap-2 text-sm">
+        <CardFooter className="flex flex-col items-start gap-2 text-sm p-4">
           <div className="flex gap-2 font-medium leading-none">
             Projected growth over{" "}
             <span className="text-gray-800">{months}</span> months{" "}
             <TrendingUp className="h-4 w-4 text-green-500" />
           </div>
-          <input
-            type="number"
-            min="1"
-            max="60"
-            value={months}
-            onChange={(e) => setMonths(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg p-2 mt-4 w-full"
-            placeholder="Enter months"
-          />
         </CardFooter>
       </Card>
     </div>
