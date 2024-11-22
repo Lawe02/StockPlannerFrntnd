@@ -52,7 +52,6 @@ const PlanDetails: React.FC = () => {
       }
     };
     loadPlanDetails();
-    console.log(plan);
   }, [id]);
 
   if (loading) {

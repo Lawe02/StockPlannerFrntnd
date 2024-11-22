@@ -25,8 +25,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 const PlanCreationForm: React.FC = () => {
+  const navigate = useNavigate();
   const [planName, setPlanName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
@@ -111,6 +113,7 @@ const PlanCreationForm: React.FC = () => {
       setDescription("");
       setUserName("");
       setStockPlans([]);
+      navigate("/");
     } catch (error) {
       setMessage(`Error: ${error}`);
     }
