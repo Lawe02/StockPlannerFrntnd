@@ -31,7 +31,7 @@ const PlanCreationForm: React.FC = () => {
   const navigate = useNavigate();
   const [planName, setPlanName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [userName, setUserName] = useState<string>("");
+  const [userName, setUserName] = useState<string>("johndoe");
   const [stockPlans, setStockPlans] = useState<PlanStockRequestDto[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [months, setMonths] = useState<number>(0); // Months input by user
@@ -111,7 +111,7 @@ const PlanCreationForm: React.FC = () => {
       setMessage(`Success: ${response}`);
       setPlanName("");
       setDescription("");
-      setUserName("");
+      setUserName("johndoe");
       setStockPlans([]);
       navigate("/");
     } catch (error) {
@@ -166,7 +166,7 @@ const PlanCreationForm: React.FC = () => {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <Label htmlFor="userName">User Name</Label>
                 <Input
                   id="userName"
@@ -174,7 +174,7 @@ const PlanCreationForm: React.FC = () => {
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                 />
-              </div>
+              </div> */}
               <div>
                 <Label htmlFor="months">Months</Label>
                 <Input

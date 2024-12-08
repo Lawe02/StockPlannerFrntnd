@@ -24,9 +24,11 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const PlansList: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth0();
   const [plans, setPlans] = useState<PlanResponseDto[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<PlanResponseDto[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -42,9 +44,10 @@ const PlansList: React.FC = () => {
     const loadPlans = async () => {
       try {
         const response: UserPlansResponseDto = await fetchPlansForUser(
-          "johndoe"
+          user?.email ? user?.email : ""
         );
         setPlans(response.plans);
+        console.log(response.plans);
         setFilteredPlans(response.plans); // Initialize filtered plans
       } catch (err) {
         setError((err as Error).message);
