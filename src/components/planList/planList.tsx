@@ -28,7 +28,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 const PlansList: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0();
   const [plans, setPlans] = useState<PlanResponseDto[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<PlanResponseDto[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -53,6 +53,7 @@ const PlansList: React.FC = () => {
         setError((err as Error).message);
       } finally {
         setLoading(false);
+        console.log(getAccessTokenSilently());
       }
     };
 

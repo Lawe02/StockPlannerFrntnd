@@ -84,9 +84,7 @@ export const createPlan = async (
 export const fetchPlansForUser = async (
   userName: string
 ): Promise<UserPlansResponseDto> => {
-  const url = `http://localhost:8080/api/stocks/plans?userName=${encodeURIComponent(
-    userName
-  )}`;
+  const url = `http://localhost:8080/api/stocks/plans?userName=${userName}`;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -95,6 +93,7 @@ export const fetchPlansForUser = async (
   const response = await fetch(url, { headers });
 
   if (!response.ok) {
+    console.log(response);
     throw new Error(
       `Failed to fetch plans for user ${userName}: ${response.statusText}`
     );
