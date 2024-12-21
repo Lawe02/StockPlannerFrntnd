@@ -25,11 +25,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const PlanCreationForm: React.FC = () => {
+  const { user, getAccessTokenSilently } = useAuth0();
+  const navigate = useNavigate();
   const [planName, setPlanName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [userName, setUserName] = useState<string>("");
+  const [userName] = useState<string>(user?.email ? user.email : "");
   const [stockPlans, setStockPlans] = useState<PlanStockRequestDto[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [months, setMonths] = useState<number>(0); // Months input by user
@@ -105,12 +109,12 @@ const PlanCreationForm: React.FC = () => {
     };
 
     try {
-      const response = await createPlan(newPlan);
+      const response = await createPlan(newPlan, getAccessTokenSilently());
       setMessage(`Success: ${response}`);
       setPlanName("");
       setDescription("");
-      setUserName("");
       setStockPlans([]);
+      navigate("/");
     } catch (error) {
       setMessage(`Error: ${error}`);
     }
@@ -160,16 +164,6 @@ const PlanCreationForm: React.FC = () => {
                   placeholder="Describe your plan"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="userName">User Name</Label>
-                <Input
-                  id="userName"
-                  placeholder="Enter your username"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
                 />
               </div>
               <div>

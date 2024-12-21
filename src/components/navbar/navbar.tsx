@@ -11,12 +11,15 @@ const Navbar = () => {
         <li className="navbar-item navbar-brand">
           <a href="#">PortfolioPlannr</a>
         </li>
-
         <li className="navbar-item user-info">
           {isAuthenticated && (
-            <p className="user-greeting">Hello, {user?.email}</p>
+            <div className="flex items-center space-x-4">
+              <p className="user-greeting text-sm font-medium">
+                Hello, {user?.email}
+              </p>
+              <AuthButton />
+            </div>
           )}
-          <AuthButton />
         </li>
       </ul>
     </nav>
