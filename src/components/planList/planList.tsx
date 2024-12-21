@@ -44,7 +44,8 @@ const PlansList: React.FC = () => {
     const loadPlans = async () => {
       try {
         const response: UserPlansResponseDto = await fetchPlansForUser(
-          user?.email ? user?.email : ""
+          user?.email ? user?.email : "",
+          getAccessTokenSilently()
         );
         setPlans(response.plans);
         console.log(response.plans);
@@ -53,7 +54,6 @@ const PlansList: React.FC = () => {
         setError((err as Error).message);
       } finally {
         setLoading(false);
-        console.log(getAccessTokenSilently());
       }
     };
 

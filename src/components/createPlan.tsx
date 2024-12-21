@@ -29,7 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const PlanCreationForm: React.FC = () => {
-  const { user } = useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
   const [planName, setPlanName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -109,7 +109,7 @@ const PlanCreationForm: React.FC = () => {
     };
 
     try {
-      const response = await createPlan(newPlan);
+      const response = await createPlan(newPlan, getAccessTokenSilently());
       setMessage(`Success: ${response}`);
       setPlanName("");
       setDescription("");

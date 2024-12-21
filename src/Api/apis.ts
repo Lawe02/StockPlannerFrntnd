@@ -1,3 +1,5 @@
+import axios from "axios";
+
 // Response
 export interface StockResponseDto {
   symbol: string;
@@ -41,14 +43,18 @@ export interface CreatePlanRequestDto {
 
 export const fetchStocks = async (
   query: string,
-  page: number
+  page: number,
+  token: Promise<string>
 ): Promise<StockResponseDto[]> => {
   const url = `http://localhost:8080/api/stocks/search?name=${query}&page=${
     page - 1
   }`;
 
+  const tokenResult = await token;
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${tokenResult}`,
   };
   const response = await fetch(url, { headers });
 
@@ -60,12 +66,16 @@ export const fetchStocks = async (
 };
 
 export const createPlan = async (
-  createPlanRequest: CreatePlanRequestDto
+  createPlanRequest: CreatePlanRequestDto,
+  token: Promise<string>
 ): Promise<string> => {
   const url = "http://localhost:8080/api/stocks";
 
+  const tokenResult = await token;
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${tokenResult}`,
   };
 
   const response = await fetch(url, {
@@ -82,29 +92,41 @@ export const createPlan = async (
 };
 
 export const fetchPlansForUser = async (
-  userName: string
+  userName: string,
+  token: Promise<string>
 ): Promise<UserPlansResponseDto> => {
   const url = `http://localhost:8080/api/stocks/plans?userName=${userName}`;
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  const tokenResult = await token;
 
-  const response = await fetch(url, { headers });
+  console.log(tokenResult);
 
-  if (!response.ok) {
-    console.log(response);
-    throw new Error(
-      `Failed to fetch plans for user ${userName}: ${response.statusText}`
-    );
-  }
+  const response = await axios.get<UserPlansResponseDto>(url, {
+    headers: {
+      Authorization: `Bearer ${tokenResult}`, // Add the token to the Authorization header
+    },
+  });
 
-  return response.json();
+  return response.data;
 };
 
-export const fetchPlanDetails = async (id: string, userName: string) => {
+export const fetchPlanDetails = async (
+  id: string,
+  userName: string,
+  token: Promise<string>
+) => {
+  const tokenResult = await token;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${tokenResult}`,
+  };
+
   const response = await fetch(
-    `http://localhost:8080/api/stocks/plans/${id}?userName=${userName}`
+    `http://localhost:8080/api/stocks/plans/${id}?userName=${userName}`,
+    {
+      headers,
+    }
   );
   if (!response.ok) {
     throw new Error("Failed to fetch plan details");

@@ -33,7 +33,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 const PlanDetails: React.FC = () => {
   const { id } = useParams();
-  const { user } = useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
   const [plan, setPlan] = useState<PlanResponseDto | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,7 +46,8 @@ const PlanDetails: React.FC = () => {
         if (id) {
           const response = await fetchPlanDetails(
             id,
-            user?.email ? user.email : ""
+            user?.email ? user.email : "",
+            getAccessTokenSilently()
           );
           setPlan(response);
         }

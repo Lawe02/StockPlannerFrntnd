@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuth0 } from "@auth0/auth0-react";
 
 interface StockListProps {
   onAddStock: (symbol: string) => void; // Callback to add a stock to the plan
 }
 
 const StockList: React.FC<StockListProps> = ({ onAddStock }) => {
+  const { getAccessTokenSilently } = useAuth0();
   const [inputValue, setInputValue] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>(""); // Search query
   const [page, setPage] = useState<number>(1); // Pagination state
@@ -29,7 +31,7 @@ const StockList: React.FC<StockListProps> = ({ onAddStock }) => {
     isError,
   } = useQuery<StockResponseDto[]>({
     queryKey: ["stocks", searchQuery, page],
-    queryFn: () => fetchStocks(searchQuery, page),
+    queryFn: () => fetchStocks(searchQuery, page, getAccessTokenSilently()),
     enabled: !!searchQuery, // Only fetch if there's a search query
   });
 
