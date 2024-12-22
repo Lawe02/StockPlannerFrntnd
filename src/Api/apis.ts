@@ -41,14 +41,14 @@ export interface CreatePlanRequestDto {
   stockPlans: PlanStockRequestDto[];
 }
 
+const apiUrl = "http://localhost:8080/api/stocks";
+
 export const fetchStocks = async (
   query: string,
   page: number,
   token: Promise<string>
 ): Promise<StockResponseDto[]> => {
-  const url = `http://localhost:8080/api/stocks/search?name=${query}&page=${
-    page - 1
-  }`;
+  const url = `${apiUrl}/search?name=${query}&page=${page - 1}`;
 
   const tokenResult = await token;
 
@@ -69,7 +69,7 @@ export const createPlan = async (
   createPlanRequest: CreatePlanRequestDto,
   token: Promise<string>
 ): Promise<string> => {
-  const url = "http://localhost:8080/api/stocks";
+  const url = apiUrl;
 
   const tokenResult = await token;
 
@@ -95,7 +95,7 @@ export const fetchPlansForUser = async (
   userName: string,
   token: Promise<string>
 ): Promise<UserPlansResponseDto> => {
-  const url = `http://localhost:8080/api/stocks/plans?userName=${userName}`;
+  const url = `${apiUrl}/plans?userName=${userName}`;
 
   const tokenResult = await token;
 
@@ -122,12 +122,9 @@ export const fetchPlanDetails = async (
     Authorization: `Bearer ${tokenResult}`,
   };
 
-  const response = await fetch(
-    `http://localhost:8080/api/stocks/plans/${id}?userName=${userName}`,
-    {
-      headers,
-    }
-  );
+  const response = await fetch(`${apiUrl}/plans/${id}?userName=${userName}`, {
+    headers,
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch plan details");
   }
