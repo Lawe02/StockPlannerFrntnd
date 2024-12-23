@@ -8,7 +8,7 @@ export interface StockResponseDto {
 
 export interface StockPlanResponseDto {
   stockSymbol: string;
-  stockName: string;
+  name: string;
   monthlyPercentageDevelopment: number;
   priceWhenAdded: number;
   moneyInvested: number;

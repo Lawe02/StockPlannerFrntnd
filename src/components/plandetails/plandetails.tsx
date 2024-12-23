@@ -58,7 +58,7 @@ const PlanDetails: React.FC = () => {
       }
     };
     loadPlanDetails();
-  }, [id]);
+  },);
 
   if (loading) {
     return <p>Loading...</p>;
