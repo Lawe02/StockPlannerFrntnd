@@ -65,6 +65,7 @@ const PlansList: React.FC = () => {
   const totalPages = Math.ceil(filteredPlans.length / itemsPerPage);
 
   const handleView = (planId: string) => {
+    console.log("asss");
     navigate(`/plan/${planId}`);
   };
 

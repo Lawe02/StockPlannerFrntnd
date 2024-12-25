@@ -55,10 +55,11 @@ const PlanDetails: React.FC = () => {
         setError((err as Error).message);
       } finally {
         setLoading(false);
+        console.log("matriiii");
       }
     };
     loadPlanDetails();
-  },);
+  }, [getAccessTokenSilently, id, user?.email]);
 
   if (loading) {
     return <p>Loading...</p>;
