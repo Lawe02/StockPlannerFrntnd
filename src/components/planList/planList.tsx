@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  fetchPlansForUser,
-  UserPlansResponseDto,
-  PlanResponseDto,
-} from "../../Api/apis";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPlansForUser, PlanResponseDto } from "../../Api/apis";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,54 +26,47 @@ import { useAuth0 } from "@auth0/auth0-react";
 const PlansList: React.FC = () => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently } = useAuth0();
-  const [plans, setPlans] = useState<PlanResponseDto[]>([]);
-  const [filteredPlans, setFilteredPlans] = useState<PlanResponseDto[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
 
-  // Constants for pagination
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(filteredPlans.length / itemsPerPage);
+
+  // Fetch plans using react-query
+  const {
+    data: plans = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<PlanResponseDto[]>({
+    queryKey: ["plans"],
+    queryFn: async () => {
+      const response = await fetchPlansForUser(
+        user?.email || "",
+        getAccessTokenSilently()
+      );
+      return response.plans;
+    },
+  });
+
+  // Filtered and paginated plans
+  const filteredPlans = plans.filter((plan) =>
+    plan.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
-    const loadPlans = async () => {
-      try {
-        const response: UserPlansResponseDto = await fetchPlansForUser(
-          user?.email ? user?.email : "",
-          getAccessTokenSilently()
-        );
-        setPlans(response.plans);
-        console.log(response.plans);
-        setFilteredPlans(response.plans); // Initialize filtered plans
-      } catch (err) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadPlans();
-  }, []);
-
-  // Search filter logic
-  useEffect(() => {
-    const filtered = plans.filter((plan) =>
-      plan.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredPlans(filtered);
-    setCurrentPage(1); // Reset to first page on new search
-  }, [searchQuery, plans]);
-
-  const handleView = (planId: string) => {
-    navigate(`/plan/${planId}`);
-  };
+    setCurrentPage(1); // Reset to page 1 when search query changes
+  }, [searchQuery]);
 
   const paginatedPlans = filteredPlans.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const totalPages = Math.ceil(filteredPlans.length / itemsPerPage);
+
+  const handleView = (planId: string) => {
+    navigate(`/plan/${planId}`);
+  };
 
   const renderPagination = () => (
     <Pagination className="mt-4">
@@ -120,17 +110,20 @@ const PlansList: React.FC = () => {
     </Pagination>
   );
 
-  if (loading) {
+  if (isLoading) {
     return <p className="text-center text-lg">Loading plans...</p>;
   }
 
-  if (error) {
-    return <p className="text-center text-red-500">Error: {error}</p>;
+  if (isError) {
+    return (
+      <p className="text-center text-red-500">
+        Error: {error?.message || "An error occurred"}
+      </p>
+    );
   }
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-4">
-      {/* Search and Filters */}
       <div className="flex justify-between items-center space-x-4">
         <Input
           placeholder="Search plans by name..."
@@ -138,8 +131,6 @@ const PlansList: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-md"
         />
-
-        {/* Floating Button */}
         <Button
           size="lg"
           onClick={() => navigate("/createPlan")}
@@ -149,7 +140,6 @@ const PlansList: React.FC = () => {
         </Button>
       </div>
 
-      {/* Table */}
       <div className="overflow-auto rounded-lg border shadow-sm">
         <Table>
           <TableHeader>
@@ -207,7 +197,6 @@ const PlansList: React.FC = () => {
         </Table>
       </div>
 
-      {/* Pagination */}
       {filteredPlans.length > itemsPerPage && renderPagination()}
     </div>
   );
