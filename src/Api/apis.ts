@@ -99,8 +99,6 @@ export const fetchPlansForUser = async (
 
   const tokenResult = await token;
 
-  console.log(tokenResult);
-
   const response = await axios.get<UserPlansResponseDto>(url, {
     headers: {
       Authorization: `Bearer ${tokenResult}`, // Add the token to the Authorization header
