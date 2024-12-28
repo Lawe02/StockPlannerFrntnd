@@ -1,4 +1,4 @@
-import AuthButton from "../auth";
+import AuthButton from "../authBtn/auth";
 
 export default function Hero() {
   return (

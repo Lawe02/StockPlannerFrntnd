@@ -65,7 +65,6 @@ const PlansList: React.FC = () => {
   const totalPages = Math.ceil(filteredPlans.length / itemsPerPage);
 
   const handleView = (planId: string) => {
-    console.log("asss");
     navigate(`/plan/${planId}`);
   };
 
@@ -74,7 +73,6 @@ const PlansList: React.FC = () => {
       <PaginationContent>
         <PaginationPrevious
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
         />
         {Array.from({ length: totalPages }, (_, index) => {
           const page = index + 1;
@@ -105,7 +103,6 @@ const PlansList: React.FC = () => {
           onClick={() =>
             setCurrentPage((prev) => Math.min(prev + 1, totalPages))
           }
-          disabled={currentPage === totalPages}
         />
       </PaginationContent>
     </Pagination>
@@ -197,7 +194,6 @@ const PlansList: React.FC = () => {
           </TableBody>
         </Table>
       </div>
-
       {filteredPlans.length > itemsPerPage && renderPagination()}
     </div>
   );

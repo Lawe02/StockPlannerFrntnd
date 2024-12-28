@@ -3,8 +3,8 @@ import {
   createPlan,
   CreatePlanRequestDto,
   PlanStockRequestDto,
-} from "../Api/apis";
-import StockList from "./stockList";
+} from "../../Api/apis";
+import StockList from "../stockList/stockList";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

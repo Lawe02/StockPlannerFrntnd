@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
-import { debounce } from "../utils/utils";
+import { debounce } from "../../utils/utils";
 import { useQuery } from "@tanstack/react-query";
-import { fetchStocks, StockResponseDto } from "../Api/apis";
+import { fetchStocks, StockResponseDto } from "../../Api/apis";
 
 import {
   Table,

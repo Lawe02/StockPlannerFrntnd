@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import AuthButton from "../auth";
+import AuthButton from "../authBtn/auth";
 import "./navbar.css";
 
 const Navbar = () => {
