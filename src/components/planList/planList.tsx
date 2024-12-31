@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPlansForUser, PlanResponseDto } from "../../Api/apis";
 import { Input } from "@/components/ui/input";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Popover, PopoverContent } from "@/components/ui/popover";
 import {
   Pagination,
   PaginationContent,
@@ -22,6 +25,16 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { useAuth0 } from "@auth0/auth0-react";
+import { PopoverTrigger } from "@radix-ui/react-popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 const PlansList: React.FC = () => {
   const navigate = useNavigate();
@@ -173,13 +186,15 @@ const PlansList: React.FC = () => {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleView(plan.id)}
-                      >
-                        View
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <FontAwesomeIcon
+                            icon={faEllipsis}
+                            className="text-2xl transition-transform"
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end"></DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
