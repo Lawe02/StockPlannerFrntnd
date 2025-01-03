@@ -14,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Popover, PopoverContent } from "@/components/ui/popover";
 import {
   Pagination,
   PaginationContent,
@@ -25,16 +24,13 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { useAuth0 } from "@auth0/auth0-react";
-import { PopoverTrigger } from "@radix-ui/react-popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 
 const PlansList: React.FC = () => {
   const navigate = useNavigate();
@@ -193,7 +189,12 @@ const PlansList: React.FC = () => {
                             className="text-2xl transition-transform"
                           />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end"></DropdownMenuContent>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleView(plan.id)}>
+                            View
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
