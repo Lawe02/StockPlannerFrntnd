@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPlansForUser, PlanResponseDto } from "../../Api/apis";
 import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsis, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -186,13 +186,30 @@ const PlansList: React.FC = () => {
                         <DropdownMenuTrigger asChild>
                           <FontAwesomeIcon
                             icon={faEllipsis}
-                            className="text-2xl transition-transform"
+                            className="text-gray-500 hover:text-gray-700 text-xl cursor-pointer transition-transform duration-150 ease-in-out transform hover:scale-110"
+                            aria-label="Actions"
                           />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleView(plan.id)}>
+                        <DropdownMenuContent
+                          align="end"
+                          className="bg-white border border-gray-200 rounded-md shadow-md w-32 p-2"
+                        >
+                          <DropdownMenuLabel className="text-sm font-medium text-gray-700 px-2 py-1">
+                            Actions
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => handleView(plan.id)}
+                            className="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 rounded-md transition"
+                          >
+                            <FontAwesomeIcon icon={faEye} className="mr-2" />
                             View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => console.log("Delete clicked")}
+                            className="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-red-100 hover:text-red-600 rounded-md transition"
+                          >
+                            <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

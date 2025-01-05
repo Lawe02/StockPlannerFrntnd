@@ -108,6 +108,28 @@ export const fetchPlansForUser = async (
   return response.data;
 };
 
+export const deltePlan = async (
+  id: string,
+  userName: string,
+  token: Promise<string>
+) => {
+  const tokenResult = await token;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${tokenResult}`,
+  };
+
+  const response = await fetch(
+    `${apiUrl}/plans/delete?planId=${id}&userName=${userName}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to delete plan");
+  }
+  return await response.json();
+};
+
 export const fetchPlanDetails = async (
   id: string,
   userName: string,
