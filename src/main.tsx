@@ -5,7 +5,7 @@ import { Auth0Provider } from "@auth0/auth0-react";
 import "./index.css";
 import App from "./App.tsx";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <Auth0Provider

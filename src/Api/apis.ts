@@ -108,26 +108,40 @@ export const fetchPlansForUser = async (
   return response.data;
 };
 
-export const deltePlan = async (
+export const deletePlan = async (
   id: string,
   userName: string,
   token: Promise<string>
 ) => {
   const tokenResult = await token;
 
+  console.log("id: " + id + " userName: " + userName);
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${tokenResult}`,
   };
 
-  const response = await fetch(
-    `${apiUrl}/plans/delete?planId=${id}&userName=${userName}`
-  );
+  try {
+    // Using axios for making the DELETE request
+    const response = await axios.delete(
+      `${apiUrl}/plans/delete`, // Replace with your actual API URL if needed
+      {
+        headers,
+        params: {
+          planId: id,
+          userName: userName,
+        },
+      }
+    );
 
-  if (!response.ok) {
+    // Handle successful response
+    return response.data;
+  } catch (error) {
+    // Handle error
+    console.error("Error deleting plan: ", error);
     throw new Error("Failed to delete plan");
   }
-  return await response.json();
 };
 
 export const fetchPlanDetails = async (

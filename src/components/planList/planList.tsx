@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { fetchPlansForUser, PlanResponseDto } from "../../Api/apis";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { deletePlan, fetchPlansForUser, PlanResponseDto } from "../../Api/apis";
 import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import { queryClient } from "@/main";
 
 const PlansList: React.FC = () => {
   const navigate = useNavigate();
@@ -56,6 +57,23 @@ const PlansList: React.FC = () => {
       return response.plans;
     },
   });
+
+  const deletePlanMutation = useMutation({
+    mutationFn: async (planId: string) => {
+      return deletePlan(
+        planId,
+        user?.email ? user.email : "",
+        getAccessTokenSilently()
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["plans"] });
+    },
+  });
+
+  const handleDeletePlan = (planId: string) => {
+    deletePlanMutation.mutate(planId);
+  };
 
   // Filtered and paginated plans
   const filteredPlans = plans.filter((plan) =>
@@ -205,7 +223,7 @@ const PlansList: React.FC = () => {
                             View
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => console.log("Delete clicked")}
+                            onClick={() => handleDeletePlan(plan.id)}
                             className="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-red-100 hover:text-red-600 rounded-md transition"
                           >
                             <FontAwesomeIcon icon={faTrash} className="mr-2" />
