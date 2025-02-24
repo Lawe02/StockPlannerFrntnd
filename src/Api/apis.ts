@@ -41,7 +41,7 @@ export interface CreatePlanRequestDto {
   stockPlans: PlanStockRequestDto[];
 }
 
-const apiUrl = "http://localhost:8080/api/stocks";
+const apiUrl = "https://stock-api-722895024234.us-central1.run.app/api/stocks";
 
 export const fetchStocks = async (
   query: string,
